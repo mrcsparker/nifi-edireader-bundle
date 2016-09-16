@@ -26,16 +26,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Tags({"EDI", "X12", "XML"})
 @CapabilityDescription("Transform EDI X12 into XML.")
 public class EDIReaderProcessor extends AbstractProcessor {
 
-    private List<PropertyDescriptor> descriptors;
+    private List<PropertyDescriptor> properties;
     private Set<Relationship> relationships;
 
     public static final Relationship REL_SUCCESS = new Relationship.Builder()
@@ -50,6 +47,10 @@ public class EDIReaderProcessor extends AbstractProcessor {
 
     @Override
     public void init(final ProcessorInitializationContext context) {
+
+        final List<PropertyDescriptor> properties = new ArrayList<>();
+        this.properties = properties;
+
         Set<Relationship> relationships = new HashSet<>();
         relationships.add(REL_SUCCESS);
         relationships.add(REL_FAILURE);
@@ -63,7 +64,7 @@ public class EDIReaderProcessor extends AbstractProcessor {
 
     @Override
     public final List<PropertyDescriptor> getSupportedPropertyDescriptors() {
-        return this.descriptors;
+        return this.properties;
     }
 
     @Override
