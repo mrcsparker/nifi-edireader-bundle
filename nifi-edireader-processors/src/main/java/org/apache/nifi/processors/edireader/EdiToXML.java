@@ -1,6 +1,6 @@
 package org.apache.nifi.processors.edireader;
 
-import com.sun.org.apache.xerces.internal.util.SynchronizedSymbolTable;
+import com.berryworks.edireader.EDIParserFactory;
 import org.apache.nifi.annotation.documentation.CapabilityDescription;
 import org.apache.nifi.annotation.documentation.Tags;
 import org.apache.nifi.components.PropertyDescriptor;
@@ -25,12 +25,11 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Tags({"EDI", "X12", "XML"})
 @CapabilityDescription("Transform EDI X12 into XML.")
-public class EDIReaderProcessor extends AbstractProcessor {
+public class EdiToXML extends AbstractProcessor {
 
     private List<PropertyDescriptor> properties;
     private Set<Relationship> relationships;
@@ -82,8 +81,7 @@ public class EDIReaderProcessor extends AbstractProcessor {
         try {
 
             // Establish an XMLReader which is actually an EDIReader.
-            System.setProperty("javax.xml.parsers.SAXParserFactory","com.berryworks.edireader.EDIParserFactory");
-            SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+            SAXParserFactory saxParserFactory = EDIParserFactory.newInstance();
             SAXParser saxParser = saxParserFactory.newSAXParser();
             XMLReader xmlReader = saxParser.getXMLReader();
 
