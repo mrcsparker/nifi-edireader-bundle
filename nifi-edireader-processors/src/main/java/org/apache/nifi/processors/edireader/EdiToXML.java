@@ -100,12 +100,7 @@ public class EdiToXML extends AbstractProcessor {
             transformer.transform(saxSource, streamResult);
 
 
-            FlowFile updatedFlowfile = session.write(flowFile, new StreamCallback() {
-                @Override
-                public void process(InputStream inputStream, OutputStream outputStream) throws IOException {
-                    outputStream.write(output.toString().getBytes());
-                }
-            });
+            FlowFile updatedFlowfile = session.write(flowFile, (inputStream, outputStream) -> outputStream.write(output.toString().getBytes()));
 
             input.close();
             output.close();

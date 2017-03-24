@@ -12,12 +12,12 @@
     <parent>
         <groupId>org.apache.nifi</groupId>
         <artifactId>nifi-nar-bundles</artifactId>
-        <version>1.0.0</version>
+        <version>1.1.2</version>
     </parent>
 
     <groupId>org.apache.nifi</groupId>
     <artifactId>nifi-edireader-bundle</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <packaging>pom</packaging>
 
     <properties>
