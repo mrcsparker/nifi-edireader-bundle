@@ -14,3 +14,4 @@
 # limitations under the License.
 
 org.apache.nifi.processors.edireader.EdiToXML
+org.apache.nifi.processors.edireader.SplitEdi

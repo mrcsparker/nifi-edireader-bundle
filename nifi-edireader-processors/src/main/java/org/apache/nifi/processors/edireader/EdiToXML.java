@@ -7,7 +7,6 @@ import org.apache.nifi.components.PropertyDescriptor;
 import org.apache.nifi.flowfile.FlowFile;
 import org.apache.nifi.processor.*;
 import org.apache.nifi.processor.exception.ProcessException;
-import org.apache.nifi.processor.io.StreamCallback;
 import org.apache.nifi.stream.io.ByteArrayOutputStream;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -99,13 +98,12 @@ public class EdiToXML extends AbstractProcessor {
             // XML output from the parsed input.
             transformer.transform(saxSource, streamResult);
 
-
-            FlowFile updatedFlowfile = session.write(flowFile, (inputStream, outputStream) -> outputStream.write(output.toString().getBytes()));
+            FlowFile updatedFlowFile = session.write(flowFile, (inputStream, outputStream) -> outputStream.write(output.toString().getBytes()));
 
             input.close();
             output.close();
 
-            session.transfer(updatedFlowfile, REL_SUCCESS);
+            session.transfer(updatedFlowFile, REL_SUCCESS);
             session.commit();
 
         } catch (SAXException e) {
