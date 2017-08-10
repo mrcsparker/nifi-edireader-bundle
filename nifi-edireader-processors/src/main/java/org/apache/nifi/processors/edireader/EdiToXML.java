@@ -7,7 +7,8 @@ import org.apache.nifi.components.PropertyDescriptor;
 import org.apache.nifi.flowfile.FlowFile;
 import org.apache.nifi.processor.*;
 import org.apache.nifi.processor.exception.ProcessException;
-import org.apache.nifi.stream.io.ByteArrayOutputStream;
+import org.apache.nifi.processor.io.InputStreamCallback;
+import org.apache.nifi.processor.io.OutputStreamCallback;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -72,56 +73,56 @@ public class EdiToXML extends AbstractProcessor {
             return;
         }
 
-        InputStream input = session.read(flowFile);
-        InputSource inputSource = new InputSource(input);
+        final FlowFile flowFileClone = session.clone(flowFile);
 
-        OutputStream output = new ByteArrayOutputStream();
+        session.read(flowFile, new InputStreamCallback() {
+            @Override
+            public void process(InputStream inputStream) throws IOException {
+                session.write(flowFileClone, new OutputStreamCallback() {
+                    @Override
+                    public void process(OutputStream outputStream) throws IOException {
+                        InputSource inputSource = new InputSource(inputStream);
 
-        try {
+                        try {
+                            // Establish an XMLReader which is actually an EDIReader.
+                            SAXParserFactory saxParserFactory = EDIParserFactory.newInstance();
+                            SAXParser saxParser = saxParserFactory.newSAXParser();
+                            XMLReader xmlReader = saxParser.getXMLReader();
 
-            // Establish an XMLReader which is actually an EDIReader.
-            SAXParserFactory saxParserFactory = EDIParserFactory.newInstance();
-            SAXParser saxParser = saxParserFactory.newSAXParser();
-            XMLReader xmlReader = saxParser.getXMLReader();
+                            // Establish the SAXSource
+                            SAXSource saxSource = new SAXSource(xmlReader, inputSource);
 
-            // Establish the SAXSource
-            SAXSource saxSource = new SAXSource(xmlReader, inputSource);
+                            // Establish an XSL Transformer to generate the XML output.
+                            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                            Transformer transformer = transformerFactory.newTransformer();
 
-            // Establish an XSL Transformer to generate the XML output.
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
+                            // The StreamResult to capture the generated XML output.
+                            StreamResult streamResult = new StreamResult(outputStream);
 
-            // The StreamResult to capture the generated XML output.
-            StreamResult streamResult = new StreamResult(output);
+                            // Call the XSL Transformer with no stylesheet to generate
+                            // XML output from the parsed input.
+                            transformer.transform(saxSource, streamResult);
+                        } catch (SAXException e) {
+                            getLogger().error("SAXException: " + e.getMessage());
+                            session.transfer(flowFile, REL_FAILURE);
+                        } catch (ParserConfigurationException e) {
+                            getLogger().error("ParserConfigurationException: " + e.getMessage());
+                            session.transfer(flowFile, REL_FAILURE);
+                        } catch (TransformerConfigurationException e) {
+                            getLogger().error("TransformerConfigurationException: " + e.getMessage());
+                            session.transfer(flowFile, REL_FAILURE);
+                        } catch (TransformerException e) {
+                            getLogger().error("TransformerException: " + e.getMessage());
+                            e.printStackTrace();
+                            session.transfer(flowFile, REL_FAILURE);
+                        }
+                    }
+                });
+            }
+        });
 
-            // Call the XSL Transformer with no stylesheet to generate
-            // XML output from the parsed input.
-            transformer.transform(saxSource, streamResult);
-
-            FlowFile updatedFlowFile = session.write(flowFile, (inputStream, outputStream) -> outputStream.write(output.toString().getBytes()));
-
-            input.close();
-            output.close();
-
-            session.transfer(updatedFlowFile, REL_SUCCESS);
-            session.commit();
-
-        } catch (SAXException e) {
-            getLogger().error("SAXException: " + e.getMessage());
-            session.transfer(flowFile, REL_FAILURE);
-        } catch (ParserConfigurationException e) {
-            getLogger().error("ParserConfigurationException: " + e.getMessage());
-            session.transfer(flowFile, REL_FAILURE);
-        } catch (TransformerConfigurationException e) {
-            getLogger().error("TransformerConfigurationException: " + e.getMessage());
-            session.transfer(flowFile, REL_FAILURE);
-        } catch (TransformerException e) {
-            getLogger().error("TransformerException: " + e.getMessage());
-            e.printStackTrace();
-            session.transfer(flowFile, REL_FAILURE);
-        } catch (IOException e) {
-            getLogger().error("IOException: " + e.getMessage());
-            session.transfer(flowFile, REL_FAILURE);
-        }
+        session.transfer(flowFileClone, REL_SUCCESS);
+        session.remove(flowFile);
+        session.commit();
     }
 }
