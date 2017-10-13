@@ -5,7 +5,7 @@
     <parent>
         <artifactId>nifi-edireader-bundle</artifactId>
         <groupId>org.apache.nifi</groupId>
-        <version>0.1.0</version>
+        <version>0.2.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>com.berryworks</groupId>
             <artifactId>edireader</artifactId>
-            <version>5.4.9</version>
+            <version>5.4.10</version>
         </dependency>
         <dependency>
             <groupId>org.apache.nifi</groupId>

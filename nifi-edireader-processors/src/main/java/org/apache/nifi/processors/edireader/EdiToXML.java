@@ -1,14 +1,18 @@
 package org.apache.nifi.processors.edireader;
 
 import com.berryworks.edireader.EDIParserFactory;
+
 import org.apache.nifi.annotation.documentation.CapabilityDescription;
 import org.apache.nifi.annotation.documentation.Tags;
 import org.apache.nifi.components.PropertyDescriptor;
 import org.apache.nifi.flowfile.FlowFile;
-import org.apache.nifi.processor.*;
+import org.apache.nifi.processor.AbstractProcessor;
+import org.apache.nifi.processor.ProcessContext;
+import org.apache.nifi.processor.ProcessSession;
+import org.apache.nifi.processor.ProcessorInitializationContext;
+import org.apache.nifi.processor.Relationship;
 import org.apache.nifi.processor.exception.ProcessException;
-import org.apache.nifi.processor.io.InputStreamCallback;
-import org.apache.nifi.processor.io.OutputStreamCallback;
+
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -22,10 +26,12 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Tags({"EDI", "X12", "XML"})
 @CapabilityDescription("Transform EDI X12 into XML.")
@@ -39,7 +45,7 @@ public class EdiToXML extends AbstractProcessor {
             .description("success")
             .build();
 
-    public static final Relationship REL_FAILURE = new Relationship.Builder()
+    private static final Relationship REL_FAILURE = new Relationship.Builder()
             .name("failure")
             .description("failure")
             .build();
@@ -75,51 +81,43 @@ public class EdiToXML extends AbstractProcessor {
 
         final FlowFile flowFileClone = session.clone(flowFile);
 
-        session.read(flowFile, new InputStreamCallback() {
-            @Override
-            public void process(InputStream inputStream) throws IOException {
-                session.write(flowFileClone, new OutputStreamCallback() {
-                    @Override
-                    public void process(OutputStream outputStream) throws IOException {
-                        InputSource inputSource = new InputSource(inputStream);
+        session.read(flowFile, inputStream -> session.write(flowFileClone, outputStream -> {
+            InputSource inputSource = new InputSource(inputStream);
 
-                        try {
-                            // Establish an XMLReader which is actually an EDIReader.
-                            SAXParserFactory saxParserFactory = EDIParserFactory.newInstance();
-                            SAXParser saxParser = saxParserFactory.newSAXParser();
-                            XMLReader xmlReader = saxParser.getXMLReader();
+            try {
+                // Establish an XMLReader which is actually an EDIReader.
+                SAXParserFactory saxParserFactory = EDIParserFactory.newInstance();
+                SAXParser saxParser = saxParserFactory.newSAXParser();
+                XMLReader xmlReader = saxParser.getXMLReader();
 
-                            // Establish the SAXSource
-                            SAXSource saxSource = new SAXSource(xmlReader, inputSource);
+                // Establish the SAXSource
+                SAXSource saxSource = new SAXSource(xmlReader, inputSource);
 
-                            // Establish an XSL Transformer to generate the XML output.
-                            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-                            Transformer transformer = transformerFactory.newTransformer();
+                // Establish an XSL Transformer to generate the XML output.
+                TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                Transformer transformer = transformerFactory.newTransformer();
 
-                            // The StreamResult to capture the generated XML output.
-                            StreamResult streamResult = new StreamResult(outputStream);
+                // The StreamResult to capture the generated XML output.
+                StreamResult streamResult = new StreamResult(outputStream);
 
-                            // Call the XSL Transformer with no stylesheet to generate
-                            // XML output from the parsed input.
-                            transformer.transform(saxSource, streamResult);
-                        } catch (SAXException e) {
-                            getLogger().error("SAXException: " + e.getMessage());
-                            session.transfer(flowFile, REL_FAILURE);
-                        } catch (ParserConfigurationException e) {
-                            getLogger().error("ParserConfigurationException: " + e.getMessage());
-                            session.transfer(flowFile, REL_FAILURE);
-                        } catch (TransformerConfigurationException e) {
-                            getLogger().error("TransformerConfigurationException: " + e.getMessage());
-                            session.transfer(flowFile, REL_FAILURE);
-                        } catch (TransformerException e) {
-                            getLogger().error("TransformerException: " + e.getMessage());
-                            e.printStackTrace();
-                            session.transfer(flowFile, REL_FAILURE);
-                        }
-                    }
-                });
+                // Call the XSL Transformer with no stylesheet to generate
+                // XML output from the parsed input.
+                transformer.transform(saxSource, streamResult);
+            } catch (SAXException e) {
+                getLogger().error("SAXException: " + e.getMessage());
+                session.transfer(flowFile, REL_FAILURE);
+            } catch (ParserConfigurationException e) {
+                getLogger().error("ParserConfigurationException: " + e.getMessage());
+                session.transfer(flowFile, REL_FAILURE);
+            } catch (TransformerConfigurationException e) {
+                getLogger().error("TransformerConfigurationException: " + e.getMessage());
+                session.transfer(flowFile, REL_FAILURE);
+            } catch (TransformerException e) {
+                getLogger().error("TransformerException: " + e.getMessage());
+                e.printStackTrace();
+                session.transfer(flowFile, REL_FAILURE);
             }
-        });
+        }));
 
         session.transfer(flowFileClone, REL_SUCCESS);
         session.remove(flowFile);

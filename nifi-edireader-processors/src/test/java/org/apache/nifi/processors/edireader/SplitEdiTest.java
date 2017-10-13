@@ -5,7 +5,6 @@ import org.apache.nifi.util.TestRunner;
 import org.apache.nifi.util.TestRunners;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 
 import java.io.IOException;
 import java.nio.file.Paths;

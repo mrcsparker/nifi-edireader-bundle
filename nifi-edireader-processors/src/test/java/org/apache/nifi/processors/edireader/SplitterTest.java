@@ -6,13 +6,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class SplitterTest {
-    private static final Logger log = Logger.getLogger(SplitterTest.class.getName());
 
     @Test
     public void wont_split_simple_file() throws IOException {

@@ -10,16 +10,15 @@ import java.util.regex.Pattern;
  * This class is essentially a struct.  No getters and setters needed.
  * Just load the data
  */
-public class Interchange {
-    private String segmentSeparator;
-    private String elementSeparator;
+class Interchange {
+    private final String segmentSeparator;
+    private final String elementSeparator;
 
-    public String fileName;
     public String isa;
     public String gs;
     public String ge;
     public String iea;
-    public List<Transaction> transactions = new ArrayList<>();
+    public final List<Transaction> transactions = new ArrayList<>();
 
     public Interchange(Character interchangeSegmentSeparator, Character interchangeElementSeparator) {
         segmentSeparator = interchangeSegmentSeparator.toString();

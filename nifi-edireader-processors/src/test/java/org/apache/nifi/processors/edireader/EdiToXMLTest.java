@@ -9,12 +9,10 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.logging.Logger;
 
 import static org.junit.Assert.assertTrue;
 
 public class EdiToXMLTest {
-    private static final Logger log = Logger.getLogger(EdiToXMLTest.class.getName());
 
     private TestRunner testRunner;
 

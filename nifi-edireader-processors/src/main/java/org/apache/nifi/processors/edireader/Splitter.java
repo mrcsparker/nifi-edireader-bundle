@@ -1,7 +1,14 @@
 package org.apache.nifi.processors.edireader;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -11,7 +18,7 @@ import java.util.stream.Collectors;
  *
  * @author <a href="mailto:mrcsparker@gmail.com">mrcsparker@gmail.com</a>
  */
-public class Splitter {
+class Splitter {
     private static final int HEADER_LENGTH = 106;
     private static final int SEGMENT_POSITION = 105;
     private static final int ELEMENT_POSITION = 3;
