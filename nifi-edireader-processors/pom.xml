@@ -28,7 +28,7 @@
         <dependency>
             <groupId>com.berryworks</groupId>
             <artifactId>edireader</artifactId>
-            <version>5.4.10</version>
+            <version>5.4.12</version>
         </dependency>
         <dependency>
             <groupId>org.apache.nifi</groupId>
