@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 public class EdiToXMLTest {
 
@@ -37,7 +37,7 @@ public class EdiToXMLTest {
         testRunner.assertQueueEmpty();
 
         List<MockFlowFile> results = testRunner.getFlowFilesForRelationship(EdiToXML.REL_SUCCESS);
-        assertTrue("1 match", results.size() == 1);
+        assertEquals("1 match", 1, results.size());
 
         MockFlowFile result = results.get(0);
 
