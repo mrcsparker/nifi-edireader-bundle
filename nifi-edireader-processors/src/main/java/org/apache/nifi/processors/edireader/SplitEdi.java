@@ -95,33 +95,14 @@ public class SplitEdi extends AbstractProcessor {
         }
 
         InputStream input = session.read(original);
-        final List<FlowFile> splits = new ArrayList<>();
         Splitter ediSplitter = new Splitter(input);
 
         try {
-            final AtomicInteger numberOfRecords = new AtomicInteger(0);
-            for (Map<String, String> ediSplits : ediSplitter.split()) {
-                for (Map.Entry<String, String> entry : ediSplits.entrySet()) {
-                    FlowFile split = session.create(original);
-                    split = session.write(split, out -> out.write(entry.getValue().getBytes("UTF-8")));
-                    split = session.putAttribute(split, "fragment.identifier", entry.getKey());
-                    split = session.putAttribute(split, "fragment.index", Integer.toString(numberOfRecords.getAndIncrement()));
-                    split = session.putAttribute(split, "segment.original.filename", split.getAttribute(CoreAttributes.FILENAME.key()));
-                    splits.add(split);
-                }
-            }
-
+            ediSplitter.splitData(session, original);
             input.close();
-
-            splits.forEach((split) -> {
-                split = session.putAttribute(split, "fragment.count", Integer.toString(numberOfRecords.get()));
-                session.transfer(split, REL_SPLIT);
-            });
 
             session.transfer(original, REL_ORIGINAL);
             session.commit();
-            getLogger().info("Split {} into {} FlowFiles", new Object[]{original, splits.size()});
-
         } catch (IOException e) {
             getLogger().error("IOException: " + e.getMessage());
             session.transfer(original, REL_FAILURE);

@@ -1,5 +1,11 @@
 package org.apache.nifi.processors.edireader.split;
 
+import org.apache.nifi.flowfile.FlowFile;
+import org.apache.nifi.flowfile.attributes.CoreAttributes;
+import org.apache.nifi.processor.ProcessSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,8 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static org.apache.nifi.processors.edireader.SplitEdi.REL_SPLIT;
 
 /**
  * EDI X12 file splitter
@@ -19,6 +28,9 @@ import java.util.stream.Collectors;
  * @author <a href="mailto:mrcsparker@gmail.com">mrcsparker@gmail.com</a>
  */
 public class Splitter {
+
+    private static Logger logger = LoggerFactory.getLogger(Splitter.class);
+
     private static final int HEADER_LENGTH = 106;
     private static final int SEGMENT_POSITION = 105;
     private static final int ELEMENT_POSITION = 3;
@@ -31,14 +43,9 @@ public class Splitter {
         this.inputReader = new BufferedReader(new InputStreamReader(inputStream));
     }
 
-    public static List<Map<String, String>> splitFile(InputStream inputStream) throws IOException {
-        Splitter splitter = new Splitter(inputStream);
-        return splitter.split();
-    }
+    public void splitData(ProcessSession session, FlowFile flowFile) throws IOException {
 
-    public final List<Map<String, String>> split() throws IOException {
-
-        List<Map<String, String>> results = new ArrayList<>();
+        final AtomicInteger numberOfRecords = new AtomicInteger(0);
 
         String isa = parseHeader();
         Interchange interchange = new Interchange(segmentSeparator, elementSeparator);
@@ -47,7 +54,7 @@ public class Splitter {
         Scanner scanner = new Scanner(inputReader);
         scanner.useDelimiter(Pattern.quote(segmentSeparator.toString()));
 
-        while(scanner.hasNext()) {
+        while (scanner.hasNext()) {
             String segment = scanner.next().trim();
             String[] elements = segment.split(Pattern.quote(elementSeparator.toString()));
             switch (elements[0]) {
@@ -63,7 +70,18 @@ public class Splitter {
                     break;
                 case "IEA":
                     interchange.iea = segment;
-                    results.add(interchange.writer());
+
+                    for (Map.Entry<String, String> entry : interchange.writer().entrySet()) {
+
+                        FlowFile split = session.create(flowFile);
+                        split = session.write(split, out -> out.write(entry.getValue().getBytes("UTF-8")));
+                        split = session.putAttribute(split, "fragment.identifier", entry.getKey());
+                        split = session.putAttribute(split, "fragment.index", Integer.toString(numberOfRecords.getAndIncrement()));
+                        split = session.putAttribute(split, "segment.original.filename", split.getAttribute(CoreAttributes.FILENAME.key()));
+                        split = session.putAttribute(split, "fragment.count", Integer.toString(numberOfRecords.get()));
+
+                        session.transfer(split, REL_SPLIT);
+                    }
                     break;
                 case "ST":
                     interchange.transactions.add(new Transaction(segment));
@@ -78,8 +96,6 @@ public class Splitter {
 
             }
         }
-
-        return results;
     }
 
     private String parseHeader() throws IOException {
