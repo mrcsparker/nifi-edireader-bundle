@@ -1,4 +1,4 @@
-package org.apache.nifi.processors.edireader;
+package org.apache.nifi.processors.edireader.split;
 
 import java.util.ArrayList;
 import java.util.List;

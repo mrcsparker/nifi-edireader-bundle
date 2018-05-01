@@ -17,6 +17,7 @@ import org.apache.nifi.processor.ProcessSession;
 import org.apache.nifi.processor.ProcessorInitializationContext;
 import org.apache.nifi.processor.Relationship;
 import org.apache.nifi.processor.exception.ProcessException;
+import org.apache.nifi.processors.edireader.split.Splitter;
 
 import java.io.IOException;
 import java.io.InputStream;

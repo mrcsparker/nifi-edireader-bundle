@@ -1,5 +1,6 @@
 package org.apache.nifi.processors.edireader;
 
+import org.apache.nifi.processors.edireader.split.Splitter;
 import org.junit.Test;
 
 import java.io.FileInputStream;

@@ -1,4 +1,4 @@
-package org.apache.nifi.processors.edireader;
+package org.apache.nifi.processors.edireader.split;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  *
  * @author <a href="mailto:mrcsparker@gmail.com">mrcsparker@gmail.com</a>
  */
-class Splitter {
+public class Splitter {
     private static final int HEADER_LENGTH = 106;
     private static final int SEGMENT_POSITION = 105;
     private static final int ELEMENT_POSITION = 3;
