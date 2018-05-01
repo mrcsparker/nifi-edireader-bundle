@@ -13,5 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+org.apache.nifi.processors.edireader.EdiToJSON
 org.apache.nifi.processors.edireader.EdiToXML
 org.apache.nifi.processors.edireader.SplitEdi

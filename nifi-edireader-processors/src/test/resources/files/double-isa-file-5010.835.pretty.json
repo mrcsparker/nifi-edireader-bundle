@@ -1,0 +1,427 @@
+[ {
+  "authorizationQualifier" : "00",
+  "authorizationInformation" : "          ",
+  "securityQualifier" : "00",
+  "securityInformation" : "          ",
+  "senderQualifier" : "ZZ",
+  "senderId" : "EMEDNYBAZ      ",
+  "receiverQualifier" : "ZZ",
+  "receiverId" : "ETIN           ",
+  "date" : "100101",
+  "time" : "1000",
+  "standardsId" : null,
+  "version" : "00501",
+  "interchangeControlNumber" : "006000600",
+  "acknowledgmentRequested" : "0",
+  "testIndicator" : "T",
+  "functionalGroups" : [ {
+    "functionalIdentifierCode" : "HP",
+    "applicationSenderCode" : "EMEDNYBAT",
+    "applicationReceiverCode" : "ETIN",
+    "date" : "20100101",
+    "time" : "1050",
+    "groupControlNumber" : "6000600",
+    "responsibleAgencyCode" : "X",
+    "version" : "005010X221A1",
+    "transactions" : [ {
+      "name" : "Health Care Claim Payment/Advice",
+      "transactionSetIdentifierCode" : "835",
+      "transactionSetControlNumber" : "1740",
+      "implementationConventionReference" : null,
+      "segments" : [ {
+        "BPR03" : "C",
+        "BPR14" : "DA",
+        "BPR02" : "1481.99",
+        "BPR13" : "111",
+        "BPR01" : "I",
+        "BPR12" : "01",
+        "BPR10" : "1234567890",
+        "BPR09" : "33",
+        "BPR08" : "DA",
+        "BPR07" : "111",
+        "BPR06" : "01",
+        "BPR05" : "CCP",
+        "BPR16" : "20100101",
+        "BPR04" : "ACH",
+        "BPR15" : "22",
+        "id" : "BPR"
+      }, {
+        "TRN02" : "10100000000",
+        "TRN03" : "1000000000",
+        "TRN01" : "1",
+        "id" : "TRN"
+      }, {
+        "REF02" : "ETIN",
+        "REF01" : "EV",
+        "id" : "REF"
+      }, {
+        "DTM02" : "20100101",
+        "id" : "DTM",
+        "DTM01" : "405"
+      } ],
+      "loops" : [ {
+        "id" : "1000",
+        "segments" : [ {
+          "N101" : "PR",
+          "N102" : "NYSDOH",
+          "id" : "N1"
+        }, {
+          "N301" : "OFFICE OF HEALTH INSURANCE PROGRAMS",
+          "N302" : "CORNING TOWER, EMPIRE STATE PLAZA",
+          "id" : "N3"
+        }, {
+          "N401" : "ALBANY",
+          "id" : "N4",
+          "N402" : "NY",
+          "N403" : "122370080"
+        }, {
+          "PER06" : "www.emedny.org",
+          "PER05" : "UR",
+          "PER04" : "8003439000",
+          "PER03" : "TE",
+          "PER02" : "PROVIDER SERVICES",
+          "PER01" : "BL",
+          "id" : "PER"
+        } ]
+      }, {
+        "id" : "1000",
+        "segments" : [ {
+          "N101" : "PE",
+          "N102" : "MAJOR MEDICAL PROVIDER",
+          "N103" : "XX",
+          "N104" : "9999999995",
+          "id" : "N1"
+        } ]
+      }, {
+        "id" : "2000",
+        "segments" : [ {
+          "id" : "LX",
+          "LX01" : "1"
+        }, {
+          "BPR03" : "C",
+          "BPR14" : "DA",
+          "BPR02" : "1481.99",
+          "BPR13" : "111",
+          "BPR01" : "I",
+          "BPR12" : "01",
+          "BPR10" : "1234567890",
+          "BPR09" : "33",
+          "BPR08" : "DA",
+          "BPR07" : "111",
+          "BPR06" : "01",
+          "BPR05" : "CCP",
+          "BPR16" : "20100101",
+          "BPR04" : "ACH",
+          "BPR15" : "22",
+          "id" : "BPR"
+        }, {
+          "TRN02" : "10100000000",
+          "TRN03" : "1000000000",
+          "TRN01" : "1",
+          "id" : "TRN"
+        }, {
+          "REF02" : "ETIN",
+          "REF01" : "EV",
+          "id" : "REF"
+        }, {
+          "DTM02" : "20100101",
+          "id" : "DTM",
+          "DTM01" : "405"
+        } ],
+        "loops" : [ {
+          "id" : "2100",
+          "segments" : [ {
+            "CLP09" : "1",
+            "CLP04" : "0",
+            "CLP03" : "137.48",
+            "CLP02" : "3",
+            "id" : "CLP",
+            "CLP01" : "PATIENT ACCOUNT NUMBER",
+            "CLP08" : "34",
+            "CLP07" : "1000210000000030",
+            "CLP06" : "MC"
+          }, {
+            "CAS03" : "137.48",
+            "CAS01" : "CO",
+            "CAS02" : "39",
+            "id" : "CAS"
+          }, {
+            "NM108" : "MI",
+            "NM109" : "LL99999L",
+            "NM104" : "SUBMITTED FIRST",
+            "NM102" : "1",
+            "id" : "NM1",
+            "NM103" : "SUBMITTED LAST",
+            "NM101" : "QC"
+          }, {
+            "REF02" : "PATIENT ACCOUNT NUMBER",
+            "REF01" : "EA",
+            "id" : "REF"
+          }, {
+            "REF02" : "2422",
+            "REF01" : "9A",
+            "id" : "REF"
+          }, {
+            "REF02" : "11111111111",
+            "REF01" : "G1",
+            "id" : "REF"
+          }, {
+            "DTM02" : "20100101",
+            "id" : "DTM",
+            "DTM01" : "232"
+          }, {
+            "DTM02" : "20100101",
+            "id" : "DTM",
+            "DTM01" : "233"
+          } ]
+        }, {
+          "id" : "2100",
+          "segments" : [ {
+            "CLP09" : "3",
+            "CLP04" : "1481.99",
+            "CLP03" : "2286.99",
+            "CLP02" : "1",
+            "id" : "CLP",
+            "CLP01" : "PATIENT ACCOUNT NUMBER",
+            "CLP08" : "21",
+            "CLP07" : "1000220000000020",
+            "CLP06" : "MC",
+            "CLP05" : "805"
+          }, {
+            "CAS03" : "805",
+            "CAS01" : "PR",
+            "CAS02" : "142",
+            "id" : "CAS"
+          }, {
+            "NM108" : "MI",
+            "NM109" : "LL88888L",
+            "NM104" : "SUBMITTED FIRST",
+            "NM102" : "1",
+            "id" : "NM1",
+            "NM103" : "SUBMITTED LAST",
+            "NM101" : "QC"
+          }, {
+            "NM104" : "CORRECTED FIRST",
+            "NM102" : "1",
+            "id" : "NM1",
+            "NM103" : "CORRECTED LAST",
+            "NM101" : "74"
+          }, {
+            "NM108" : "XX",
+            "NM109" : "9999999995",
+            "NM102" : "1",
+            "id" : "NM1",
+            "NM101" : "82"
+          }, {
+            "REF02" : "PATIENT ACCOUNT NUMBER",
+            "REF01" : "EA",
+            "id" : "REF"
+          }, {
+            "REF02" : "3839",
+            "REF01" : "9A",
+            "id" : "REF"
+          }, {
+            "DTM02" : "20100101",
+            "id" : "DTM",
+            "DTM01" : "232"
+          }, {
+            "DTM02" : "20100101",
+            "id" : "DTM",
+            "DTM01" : "233"
+          }, {
+            "AMT01" : "AU",
+            "AMT02" : "2286.99",
+            "id" : "AMT"
+          }, {
+            "QTY02" : "9",
+            "id" : "QTY",
+            "QTY01" : "CA"
+          } ]
+        } ]
+      } ]
+    } ]
+  } ]
+}, {
+  "authorizationQualifier" : "00",
+  "authorizationInformation" : "          ",
+  "securityQualifier" : "00",
+  "securityInformation" : "          ",
+  "senderQualifier" : "ZZ",
+  "senderId" : "EMEDNYBAT      ",
+  "receiverQualifier" : "ZZ",
+  "receiverId" : "ETIN           ",
+  "date" : "100101",
+  "time" : "1000",
+  "standardsId" : null,
+  "version" : "00501",
+  "interchangeControlNumber" : "006000600",
+  "acknowledgmentRequested" : "0",
+  "testIndicator" : "T",
+  "functionalGroups" : [ {
+    "functionalIdentifierCode" : "HP",
+    "applicationSenderCode" : "EMEDNYBAT",
+    "applicationReceiverCode" : "ETIN",
+    "date" : "20100101",
+    "time" : "1050",
+    "groupControlNumber" : "6000600",
+    "responsibleAgencyCode" : "X",
+    "version" : "005010X221A1",
+    "transactions" : [ {
+      "name" : "Health Care Claim Payment/Advice",
+      "transactionSetIdentifierCode" : "835",
+      "transactionSetControlNumber" : "1740",
+      "implementationConventionReference" : null,
+      "segments" : [ ],
+      "loops" : [ {
+        "id" : "1000",
+        "segments" : [ {
+          "N101" : "PR",
+          "N102" : "NYSDOH",
+          "id" : "N1"
+        }, {
+          "N301" : "OFFICE OF HEALTH INSURANCE PROGRAMS",
+          "N302" : "CORNING TOWER, EMPIRE STATE PLAZA",
+          "id" : "N3"
+        }, {
+          "N401" : "ALBANY",
+          "id" : "N4",
+          "N402" : "NY",
+          "N403" : "122370080"
+        }, {
+          "PER06" : "www.emedny.org",
+          "PER05" : "UR",
+          "PER04" : "8003439000",
+          "PER03" : "TE",
+          "PER02" : "PROVIDER SERVICES",
+          "PER01" : "BL",
+          "id" : "PER"
+        } ]
+      }, {
+        "id" : "1000",
+        "segments" : [ {
+          "N101" : "PE",
+          "N102" : "MAJOR MEDICAL PROVIDER",
+          "N103" : "XX",
+          "N104" : "9999999995",
+          "id" : "N1"
+        } ]
+      }, {
+        "id" : "2000",
+        "segments" : [ {
+          "id" : "LX",
+          "LX01" : "1"
+        } ],
+        "loops" : [ {
+          "id" : "2100",
+          "segments" : [ {
+            "CLP09" : "1",
+            "CLP04" : "0",
+            "CLP03" : "137.48",
+            "CLP02" : "3",
+            "id" : "CLP",
+            "CLP01" : "PATIENT ACCOUNT NUMBER",
+            "CLP08" : "34",
+            "CLP07" : "1000210000000030",
+            "CLP06" : "MC"
+          }, {
+            "CAS03" : "137.48",
+            "CAS01" : "CO",
+            "CAS02" : "39",
+            "id" : "CAS"
+          }, {
+            "NM108" : "MI",
+            "NM109" : "LL99999L",
+            "NM104" : "SUBMITTED FIRST",
+            "NM102" : "1",
+            "id" : "NM1",
+            "NM103" : "SUBMITTED LAST",
+            "NM101" : "QC"
+          }, {
+            "REF02" : "PATIENT ACCOUNT NUMBER",
+            "REF01" : "EA",
+            "id" : "REF"
+          }, {
+            "REF02" : "2422",
+            "REF01" : "9A",
+            "id" : "REF"
+          }, {
+            "REF02" : "11111111111",
+            "REF01" : "G1",
+            "id" : "REF"
+          }, {
+            "DTM02" : "20100101",
+            "id" : "DTM",
+            "DTM01" : "232"
+          }, {
+            "DTM02" : "20100101",
+            "id" : "DTM",
+            "DTM01" : "233"
+          } ]
+        }, {
+          "id" : "2100",
+          "segments" : [ {
+            "CLP09" : "3",
+            "CLP04" : "1481.99",
+            "CLP03" : "2286.99",
+            "CLP02" : "1",
+            "id" : "CLP",
+            "CLP01" : "PATIENT ACCOUNT NUMBER",
+            "CLP08" : "21",
+            "CLP07" : "1000220000000020",
+            "CLP06" : "MC",
+            "CLP05" : "805"
+          }, {
+            "CAS03" : "805",
+            "CAS01" : "PR",
+            "CAS02" : "142",
+            "id" : "CAS"
+          }, {
+            "NM108" : "MI",
+            "NM109" : "LL88888L",
+            "NM104" : "SUBMITTED FIRST",
+            "NM102" : "1",
+            "id" : "NM1",
+            "NM103" : "SUBMITTED LAST",
+            "NM101" : "QC"
+          }, {
+            "NM104" : "CORRECTED FIRST",
+            "NM102" : "1",
+            "id" : "NM1",
+            "NM103" : "CORRECTED LAST",
+            "NM101" : "74"
+          }, {
+            "NM108" : "XX",
+            "NM109" : "9999999995",
+            "NM102" : "1",
+            "id" : "NM1",
+            "NM101" : "82"
+          }, {
+            "REF02" : "PATIENT ACCOUNT NUMBER",
+            "REF01" : "EA",
+            "id" : "REF"
+          }, {
+            "REF02" : "3839",
+            "REF01" : "9A",
+            "id" : "REF"
+          }, {
+            "DTM02" : "20100101",
+            "id" : "DTM",
+            "DTM01" : "232"
+          }, {
+            "DTM02" : "20100101",
+            "id" : "DTM",
+            "DTM01" : "233"
+          }, {
+            "AMT01" : "AU",
+            "AMT02" : "2286.99",
+            "id" : "AMT"
+          }, {
+            "QTY02" : "9",
+            "id" : "QTY",
+            "QTY01" : "CA"
+          } ]
+        } ]
+      } ]
+    } ]
+  } ]
+} ]

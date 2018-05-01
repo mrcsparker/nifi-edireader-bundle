@@ -133,3 +133,5 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+copy.sh
