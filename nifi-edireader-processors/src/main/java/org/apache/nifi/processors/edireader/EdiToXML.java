@@ -39,6 +39,7 @@ public class EdiToXML extends AbstractProcessor {
 
     private List<PropertyDescriptor> properties;
     private Set<Relationship> relationships;
+    private boolean hasError = false;
 
     public static final Relationship REL_SUCCESS = new Relationship.Builder()
             .name("success")
@@ -83,7 +84,6 @@ public class EdiToXML extends AbstractProcessor {
 
         session.read(flowFile, inputStream -> session.write(flowFileClone, outputStream -> {
             InputSource inputSource = new InputSource(inputStream);
-
             try {
                 // Establish an XMLReader which is actually an EDIReader.
                 SAXParserFactory saxParserFactory = EDIParserFactory.newInstance();
@@ -105,22 +105,28 @@ public class EdiToXML extends AbstractProcessor {
                 transformer.transform(saxSource, streamResult);
             } catch (SAXException e) {
                 getLogger().error("SAXException: " + e.getMessage());
-                session.transfer(flowFile, REL_FAILURE);
+                hasError = true;
             } catch (ParserConfigurationException e) {
                 getLogger().error("ParserConfigurationException: " + e.getMessage());
-                session.transfer(flowFile, REL_FAILURE);
+                hasError = true;
             } catch (TransformerConfigurationException e) {
                 getLogger().error("TransformerConfigurationException: " + e.getMessage());
-                session.transfer(flowFile, REL_FAILURE);
+                hasError = true;
             } catch (TransformerException e) {
                 getLogger().error("TransformerException: " + e.getMessage());
                 e.printStackTrace();
-                session.transfer(flowFile, REL_FAILURE);
+                hasError = true;
             }
         }));
 
-        session.transfer(flowFileClone, REL_SUCCESS);
-        session.remove(flowFile);
+    	if (hasError) {
+    		session.transfer(flowFile, REL_FAILURE);
+    		session.remove(flowFileClone);
+    	} else {
+            session.transfer(flowFileClone, REL_SUCCESS);
+            session.remove(flowFile);            		
+    	}
+    	hasError = false;
         session.commit();
     }
 }
