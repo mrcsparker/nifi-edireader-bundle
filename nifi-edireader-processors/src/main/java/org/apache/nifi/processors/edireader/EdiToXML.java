@@ -2,6 +2,7 @@ package org.apache.nifi.processors.edireader;
 
 import com.berryworks.edireader.EDIParserFactory;
 
+import com.berryworks.edireader.error.MissingMandatoryElementException;
 import org.apache.nifi.annotation.documentation.CapabilityDescription;
 import org.apache.nifi.annotation.documentation.Tags;
 import org.apache.nifi.components.PropertyDescriptor;
@@ -17,13 +18,11 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 
@@ -46,21 +45,19 @@ public class EdiToXML extends AbstractProcessor {
             .description("success")
             .build();
 
-    private static final Relationship REL_FAILURE = new Relationship.Builder()
+    public static final Relationship REL_FAILURE = new Relationship.Builder()
             .name("failure")
             .description("failure")
             .build();
 
     @Override
     public void init(final ProcessorInitializationContext context) {
+        this.properties = new ArrayList<>();
 
-        final List<PropertyDescriptor> properties = new ArrayList<>();
-        this.properties = properties;
-
-        Set<Relationship> relationships = new HashSet<>();
-        relationships.add(REL_SUCCESS);
-        relationships.add(REL_FAILURE);
-        this.relationships = Collections.unmodifiableSet(relationships);
+        Set<Relationship> relationshipSet = new HashSet<>();
+        relationshipSet.add(REL_SUCCESS);
+        relationshipSet.add(REL_FAILURE);
+        this.relationships = Collections.unmodifiableSet(relationshipSet);
     }
 
     @Override
@@ -95,7 +92,10 @@ public class EdiToXML extends AbstractProcessor {
 
                 // Establish an XSL Transformer to generate the XML output.
                 TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                transformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
                 Transformer transformer = transformerFactory.newTransformer();
+                transformer.setOutputProperty(OutputKeys.INDENT, "no");
 
                 // The StreamResult to capture the generated XML output.
                 StreamResult streamResult = new StreamResult(outputStream);
@@ -114,7 +114,9 @@ public class EdiToXML extends AbstractProcessor {
                 hasError = true;
             } catch (TransformerException e) {
                 getLogger().error("TransformerException: " + e.getMessage());
-                e.printStackTrace();
+                hasError = true;
+            } catch (Exception e) {
+                getLogger().error("Exception: " + e.getMessage());
                 hasError = true;
             }
         }));

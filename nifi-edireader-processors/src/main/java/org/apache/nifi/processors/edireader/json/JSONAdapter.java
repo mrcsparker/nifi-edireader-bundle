@@ -45,8 +45,6 @@ public class JSONAdapter extends DefaultHandler {
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         super.startElement(uri, localName, qName, attributes);
 
-        // logger.info("{}", attributes);
-
         if (localName.startsWith(xmlTags.getInterchangeTag())) {
             startInterchange(uri, localName, qName, attributes);
         } else if (localName.startsWith(xmlTags.getReceiverTag())) {
@@ -100,7 +98,7 @@ public class JSONAdapter extends DefaultHandler {
     }
 
     @Override
-    public void characters(char ch[], int start, int length) throws SAXException {
+    public void characters(char[] ch, int start, int length) throws SAXException {
         String s = new String(ch, start, length);
         if (elementString != null) elementString += s;
     }
@@ -126,7 +124,6 @@ public class JSONAdapter extends DefaultHandler {
     }
 
     private void startInterchange(String uri, String localName, String qName, Attributes attributes) {
-        // logger.info("{}", "Starting interchange");
         interchange = new Interchange();
         interchange.setAuthorizationQualifier(attributes.getValue("AuthorizationQual"));
         interchange.setAuthorizationInformation(attributes.getValue("Authorization"));
@@ -228,7 +225,6 @@ public class JSONAdapter extends DefaultHandler {
     }
 
     private void endSegmentSubElement(String uri, String localName, String qName) {
-        // logger.info("{} {}", currentElement, elementString);
         elements.put(currentSubelementSequence, elementString);
     }
 }

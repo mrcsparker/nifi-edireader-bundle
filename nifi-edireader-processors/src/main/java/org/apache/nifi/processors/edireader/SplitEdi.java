@@ -10,7 +10,6 @@ import org.apache.nifi.annotation.documentation.CapabilityDescription;
 import org.apache.nifi.annotation.documentation.Tags;
 import org.apache.nifi.components.PropertyDescriptor;
 import org.apache.nifi.flowfile.FlowFile;
-import org.apache.nifi.flowfile.attributes.CoreAttributes;
 import org.apache.nifi.processor.AbstractProcessor;
 import org.apache.nifi.processor.ProcessContext;
 import org.apache.nifi.processor.ProcessSession;
@@ -26,9 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @EventDriven
 @SideEffectFree
@@ -49,6 +46,7 @@ public class SplitEdi extends AbstractProcessor {
 
     private List<PropertyDescriptor> properties;
     private Set<Relationship> relationships;
+    private boolean hasError = false;
 
     public static final Relationship REL_ORIGINAL = new Relationship.Builder()
             .name("original")
@@ -67,14 +65,13 @@ public class SplitEdi extends AbstractProcessor {
     @Override
     public void init(final ProcessorInitializationContext context) {
 
-        final List<PropertyDescriptor> properties = new ArrayList<>();
-        this.properties = properties;
+        this.properties = new ArrayList<>();
 
-        Set<Relationship> relationships = new HashSet<>();
-        relationships.add(REL_ORIGINAL);
-        relationships.add(REL_SPLIT);
-        relationships.add(REL_FAILURE);
-        this.relationships = Collections.unmodifiableSet(relationships);
+        Set<Relationship> relationshipSet = new HashSet<>();
+        relationshipSet.add(REL_ORIGINAL);
+        relationshipSet.add(REL_SPLIT);
+        relationshipSet.add(REL_FAILURE);
+        this.relationships = Collections.unmodifiableSet(relationshipSet);
     }
 
     @Override
@@ -94,18 +91,27 @@ public class SplitEdi extends AbstractProcessor {
             return;
         }
 
-        InputStream input = session.read(original);
-        Splitter ediSplitter = new Splitter(input);
+        List<FlowFile> splitFlowFiles = new ArrayList<>();
 
-        try {
-            ediSplitter.splitData(session, original);
-            input.close();
-
-            session.transfer(original, REL_ORIGINAL);
-            session.commit();
+        try (InputStream input = session.read(original)) {
+            Splitter ediSplitter = new Splitter(input);
+            splitFlowFiles = ediSplitter.splitData(session, original);
         } catch (IOException e) {
             getLogger().error("IOException: " + e.getMessage());
-            session.transfer(original, REL_FAILURE);
+            hasError = true;
+        } catch (Exception e) {
+            getLogger().error("Exception: " + e.getMessage());
+            hasError = true;
         }
+
+        if (hasError) {
+            session.transfer(original, REL_FAILURE);
+            session.remove(splitFlowFiles);
+        } else {
+            session.transfer(splitFlowFiles, REL_SPLIT);
+            session.transfer(original, REL_ORIGINAL);
+        }
+        hasError = false;
+        session.commit();
     }
 }
