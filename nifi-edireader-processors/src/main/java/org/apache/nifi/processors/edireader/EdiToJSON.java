@@ -12,7 +12,6 @@ import org.apache.nifi.processor.*;
 import org.apache.nifi.processor.exception.ProcessException;
 import org.apache.nifi.processor.util.StandardValidators;
 import org.apache.nifi.processors.edireader.json.JSONAdapter;
-import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -24,13 +23,14 @@ public class EdiToJSON extends AbstractProcessor {
 
     private List<PropertyDescriptor> properties;
     private Set<Relationship> relationships;
+    private boolean hasError = false;
 
     public static final Relationship REL_SUCCESS = new Relationship.Builder()
             .name("success")
             .description("success")
             .build();
 
-    private static final Relationship REL_FAILURE = new Relationship.Builder()
+    public static final Relationship REL_FAILURE = new Relationship.Builder()
             .name("failure")
             .description("failure")
             .build();
@@ -47,14 +47,14 @@ public class EdiToJSON extends AbstractProcessor {
     @Override
     public void init(final ProcessorInitializationContext context) {
 
-        final List<PropertyDescriptor> properties = new ArrayList<>();
-        properties.add(PRETTY_PRINT);
-        this.properties = properties;
+        final List<PropertyDescriptor> propertyDescriptors = new ArrayList<>();
+        propertyDescriptors.add(PRETTY_PRINT);
+        this.properties = propertyDescriptors;
 
-        Set<Relationship> relationships = new HashSet<>();
-        relationships.add(REL_SUCCESS);
-        relationships.add(REL_FAILURE);
-        this.relationships = Collections.unmodifiableSet(relationships);
+        Set<Relationship> relationshipSet = new HashSet<>();
+        relationshipSet.add(REL_SUCCESS);
+        relationshipSet.add(REL_FAILURE);
+        this.relationships = Collections.unmodifiableSet(relationshipSet);
     }
 
     @Override
@@ -81,7 +81,7 @@ public class EdiToJSON extends AbstractProcessor {
             InputSource inputSource = new InputSource(inputStream);
 
             XMLTags xmlTags = new DefaultXMLTags();
-            ContentHandler handler = new JSONAdapter(xmlTags);
+            JSONAdapter handler = new JSONAdapter(xmlTags);
             EDIReader ediReader;
             char[] leftOver = null;
 
@@ -93,20 +93,27 @@ public class EdiToJSON extends AbstractProcessor {
                 }
 
                 if (prettyPrint) {
-                    outputStream.write(((JSONAdapter) handler).toPrettyJsonBytes());
+                    outputStream.write(handler.toPrettyJsonBytes());
                 } else {
-                    outputStream.write(((JSONAdapter) handler).toJsonBytes());
+                    outputStream.write(handler.toJsonBytes());
                 }
             } catch (SAXException e) {
                 getLogger().error("SAXException: " + e.getMessage());
-                session.transfer(flowFile, REL_FAILURE);
+                hasError = true;
+            } catch (Exception e) {
+                getLogger().error("Exception: " + e.getMessage());
+                hasError = true;
             }
         }));
 
-        session.transfer(flowFileClone, REL_SUCCESS);
-        session.remove(flowFile);
+        if (hasError) {
+            session.transfer(flowFile, REL_FAILURE);
+            session.remove(flowFileClone);
+        } else {
+            session.transfer(flowFileClone, REL_SUCCESS);
+            session.remove(flowFile);
+        }
+        hasError = false;
         session.commit();
     }
-
-
 }

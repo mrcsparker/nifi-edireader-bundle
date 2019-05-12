@@ -1,12 +1,15 @@
 package org.apache.nifi.processors.edireader;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.nifi.util.MockFlowFile;
 import org.apache.nifi.util.TestRunner;
 import org.apache.nifi.util.TestRunners;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -16,11 +19,9 @@ import static org.junit.Assert.assertEquals;
 public class EdiToJSONTest {
     private TestRunner testRunner;
 
-    EdiToJSON ediToJSON;
-
     @Before
     public void init() {
-        ediToJSON = new EdiToJSON();
+        EdiToJSON ediToJSON = new EdiToJSON();
         testRunner = TestRunners.newTestRunner(ediToJSON);
         testRunner.setValidateExpressionUsage(false);
     }
@@ -94,6 +95,25 @@ public class EdiToJSONTest {
 
         // Test attributes and content
         result.assertContentEquals(bytes);
+    }
+
+    @Test
+    public void testOnTriggerBadEdiFile() throws IOException {
+        String f = ediFile("/files/pharmacy-5010-bad.835");
+
+        testRunner.setProperty(EdiToJSON.PRETTY_PRINT, "true");
+
+        testRunner.enqueue(Paths.get(f));
+        testRunner.run();
+
+        testRunner.assertQueueEmpty();
+
+        List<MockFlowFile> results = testRunner.getFlowFilesForRelationship(EdiToJSON.REL_FAILURE);
+        assertEquals("1 match", 1, results.size());
+
+        MockFlowFile result = results.get(0);
+        File resultData = FileUtils.getFile(f);
+        result.assertContentEquals(FileUtils.readFileToString(resultData, Charset.defaultCharset()));
     }
 
     private String ediFile(String fileName) {

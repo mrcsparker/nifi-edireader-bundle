@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,12 +22,6 @@ import java.util.stream.Collectors;
 
 import static org.apache.nifi.processors.edireader.SplitEdi.REL_SPLIT;
 
-/**
- * EDI X12 file splitter
- * [INFO] Ugly code alert.  Just getting it working right now.
- *
- * @author <a href="mailto:mrcsparker@gmail.com">mrcsparker@gmail.com</a>
- */
 public class Splitter {
 
     private static Logger logger = LoggerFactory.getLogger(Splitter.class);
@@ -43,9 +38,10 @@ public class Splitter {
         this.inputReader = new BufferedReader(new InputStreamReader(inputStream));
     }
 
-    public void splitData(ProcessSession session, FlowFile flowFile) throws IOException {
+    public List<FlowFile> splitData(ProcessSession session, FlowFile flowFile) throws IOException {
 
         final AtomicInteger numberOfRecords = new AtomicInteger(0);
+        List<FlowFile> flowFiles = new ArrayList<>();
 
         String isa = parseHeader();
         Interchange interchange = new Interchange(segmentSeparator, elementSeparator);
@@ -74,28 +70,25 @@ public class Splitter {
                     for (Map.Entry<String, String> entry : interchange.writer().entrySet()) {
 
                         FlowFile split = session.create(flowFile);
-                        split = session.write(split, out -> out.write(entry.getValue().getBytes("UTF-8")));
+                        split = session.write(split, out -> out.write(entry.getValue().getBytes(StandardCharsets.UTF_8)));
                         split = session.putAttribute(split, "fragment.identifier", entry.getKey());
                         split = session.putAttribute(split, "fragment.index", Integer.toString(numberOfRecords.getAndIncrement()));
                         split = session.putAttribute(split, "segment.original.filename", split.getAttribute(CoreAttributes.FILENAME.key()));
                         split = session.putAttribute(split, "fragment.count", Integer.toString(numberOfRecords.get()));
 
-                        session.transfer(split, REL_SPLIT);
+                        flowFiles.add(split);
                     }
                     break;
                 case "ST":
                     interchange.transactions.add(new Transaction(segment));
                     interchange.transactions.get(interchange.transactions.size() - 1).segments.add(segment);
                     break;
-                case "SE":
-                    interchange.transactions.get(interchange.transactions.size() - 1).segments.add(segment);
-                    break;
                 default:
                     interchange.transactions.get(interchange.transactions.size() - 1).segments.add(segment);
                     break;
-
             }
         }
+        return flowFiles;
     }
 
     private String parseHeader() throws IOException {
